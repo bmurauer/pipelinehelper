@@ -58,20 +58,14 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
     def fit(self, X, y=None):
         if self.selected_model is None:
             raise Exception('no model was set')
-        print('fitting model: ', self.selected_model)
-        print('using data: ', X[:10])
         return self.selected_model.fit(X, y)
 
     def transform(self, X, y=None):
         if self.selected_model is None:
             raise Exception('no model was set')
-        print('transforming with model: ', self.selected_model)
-        print('using data: ', X[:10])
         return self.selected_model.transform(X)
 
     def predict(self, y):
         if self.selected_model is None:
             raise Exception('no model was set')
-        print('predicting with model: ', self.selected_model)
-        print('using data: ', y[:10])
         return self.selected_model.predict(y)
