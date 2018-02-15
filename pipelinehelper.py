@@ -16,7 +16,7 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             for (key, model) in available_models:
                 self.available_models[key] = model
 
-    def produce_grid_parameters(self, param_dict):
+    def generate(self, param_dict):
         per_model_parameters = defaultdict(lambda: defaultdict(list))
         
         # collect parameters for each specified model

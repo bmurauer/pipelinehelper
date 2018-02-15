@@ -24,12 +24,12 @@ pipe = Pipeline([
 ])
 
 params = {
-    'scaler__selected_model': pipe.named_steps['scaler'].produce_grid_parameters({
+    'scaler__selected_model': pipe.named_steps['scaler'].generate({
         'std__std__with_mean': [True, False],
         'std__std__with_std': [True, False],
         'max__copy': [True],
     }),
-    'classifier__selected_model': pipe.named_steps['classifier'].produce_grid_parameters({
+    'classifier__selected_model': pipe.named_steps['classifier'].generate({
         'svm__C': [0.1, 1.0],
         'rf__n_estimators': [100, 20],
     })
