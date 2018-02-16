@@ -54,7 +54,6 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         self.selected_model = self.available_models[selected_model[0]]
         self.selected_model.set_params(**selected_model[1])
 
-
     def fit(self, X, y=None):
         if self.selected_model is None:
             raise Exception('no model was set')
@@ -65,7 +64,7 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             raise Exception('no model was set')
         return self.selected_model.transform(X)
 
-    def predict(self, y):
+    def predict(self, x):
         if self.selected_model is None:
             raise Exception('no model was set')
-        return self.selected_model.predict(y)
+        return self.selected_model.predict(x)
