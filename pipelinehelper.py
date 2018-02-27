@@ -2,9 +2,11 @@ from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
 from collections import defaultdict
 import itertools
 
+
 class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
 
-    def __init__(self, available_models=None, selected_model=None):
+    def __init__(self, available_models=None, selected_model=None, include_bypass=False):
+        self.include_bypass = include_bypass
         self.selected_model = selected_model
         # this is required for the clone operator used in gridsearch 
         if type(available_models) == dict:
@@ -40,31 +42,55 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             if model_name not in per_model_parameters:
                 ret.append((model_name, dict()))
 
+        # check if the stage is to be bypassed as one configuration
+        if self.include_bypass:
+            ret.append((None, dict(), True))
         return ret
                
     def get_params(self, deep=False):
         return {'available_models': self.available_models,
-                'selected_model': self.selected_model}
+                'selected_model': self.selected_model,
+                'include_bypass': self.include_bypass}
 
-    def set_params(self, selected_model, available_models=None):
+    def set_params(self, selected_model, available_models=None, include_bypass=False):
+        include_bypass = len(selected_model) == 3 and selected_model[2]
+                    
         if available_models:
             self.available_models = available_models
-        if selected_model[0] not in self.available_models:
-            raise Exception('so such model available: {0}'.format(selected_model[0]))
-        self.selected_model = self.available_models[selected_model[0]]
-        self.selected_model.set_params(**selected_model[1])
+
+        if selected_model[0] is None and include_bypass:
+            self.selected_model = None
+            self.include_bypass = True
+        else:
+            if selected_model[0] not in self.available_models:
+                raise Exception('so such model available: {0}'.format(selected_model[0]))
+            self.selected_model = self.available_models[selected_model[0]]
+            self.selected_model.set_params(**selected_model[1])
 
     def fit(self, X, y=None):
-        if self.selected_model is None:
+        if self.selected_model is None and not self.include_bypass:
             raise Exception('no model was set')
-        return self.selected_model.fit(X, y)
+        elif self.selected_model is None:
+            # print('bypassing model for fitting, returning self')
+            return self
+        else:
+            # print('using model for fitting: ', self.selected_model.__class__.__name__)
+            return self.selected_model.fit(X, y)
 
     def transform(self, X, y=None):
-        if self.selected_model is None:
+        if self.selected_model is None and not self.include_bypass:
             raise Exception('no model was set')
-        return self.selected_model.transform(X)
+        elif self.selected_model is None:
+            # print('bypassing model for transforming:')
+            # print(X[:10])
+            return X
+        else:
+            # print('using model for transforming: ', self.selected_model.__class__.__name__)
+            return self.selected_model.transform(X)
 
     def predict(self, x):
+        if self.include_bypass:
+            raise Exception('bypassing classifier is not allowed')
         if self.selected_model is None:
             raise Exception('no model was set')
         return self.selected_model.predict(x)
