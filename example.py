@@ -1,40 +1,69 @@
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import StandardScaler, MaxAbsScaler
-from sklearn.svm import LinearSVC
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler, MaxAbsScaler, MinMaxScaler
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn import datasets
 from pipelinehelper import PipelineHelper
 
-iris = datasets.load_iris()
-X_iris = iris.data
-y_iris = iris.target
+X, y = datasets.load_iris(True)
+
 pipe = Pipeline([
     ('scaler', PipelineHelper([
-        # nested! 
-        ('std', Pipeline([
-            ('std', StandardScaler()),
-        ])),
+        ('std', StandardScaler()),
         ('max', MaxAbsScaler()),
-    ])),
+    ], include_bypass=True)), # this will produce one setting without scaler
     ('classifier', PipelineHelper([
-        ('svm', LinearSVC()),
+        ('svm', SVC()),
         ('rf', RandomForestClassifier()),
+        ('ada', AdaBoostClassifier()),
+        ('gb', GradientBoostingClassifier()),
+        ('knn', KNeighborsClassifier()),
+        
+        ('nb_pipe', Pipeline([
+            # Naivie Bayes needs positive numbers
+            ('scaler', MinMaxScaler()),
+            ('nb', MultinomialNB())
+        ])),
     ])),
 ])
 
 params = {
     'scaler__selected_model': pipe.named_steps['scaler'].generate({
-        'std__std__with_mean': [True, False],
-        'std__std__with_std': [True, False],
-        'max__copy': [True],
+        'std__with_mean': [True, False],
+        'std__with_std': [True, False],
+        # no params for 'max' leads to using standard params
     }),
     'classifier__selected_model': pipe.named_steps['classifier'].generate({
+
         'svm__C': [0.1, 1.0],
-        'rf__n_estimators': [100, 20],
+        'svm__kernel': ['linear', 'rbf'],
+
+        'rf__n_estimators': [10, 20, 50, 100, 150],
+        'rf__max_features' : ['auto', 'sqrt', 'log2'],
+        'rf__min_samples_split' : [2, 5, 10],
+        'rf__min_samples_leaf' : [1, 2, 4],
+        'rf__bootstrap': [True, False],
+
+        'ada__n_estimators': [10, 20, 40, 100],
+        'ada__algorithm': ['SAMME', 'SAMME.R'],
+        
+        'gb__n_estimators': [10, 20, 50, 100],
+        'gb__criterion': ['friedman_mse', 'mse', 'mae'],
+        'gb__max_features': ['auto', 'sqrt', None],
+
+        'knn__n_neighbors'  : [2, 3, 5, 7, 10],
+        'knn__leaf_size':[1,2,3,5],
+        'knn__weights': ['uniform', 'distance'],
+        'knn__algorithm': ['auto', 'ball_tree','kd_tree','brute'],
+
+        'nb_pipe__nb__fit_prior': [True, False],
+        'nb_pipe__nb__alpha': [0.1, 0.2],
     })
 }
-grid = GridSearchCV(pipe, params, scoring='accuracy', verbose=1)
-grid.fit(X_iris, y_iris)
+grid = GridSearchCV(pipe, params, scoring='accuracy', verbose=1, n_jobs=-1)
+grid.fit(X, y)
 print(grid.best_params_)
 print(grid.best_score_)
