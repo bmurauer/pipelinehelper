@@ -71,21 +71,16 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         if self.selected_model is None and not self.include_bypass:
             raise Exception('no model was set')
         elif self.selected_model is None:
-            # print('bypassing model for fitting, returning self')
             return self
         else:
-            # print('using model for fitting: ', self.selected_model.__class__.__name__)
             return self.selected_model.fit(X, y)
 
     def transform(self, X, y=None):
         if self.selected_model is None and not self.include_bypass:
             raise Exception('no model was set')
         elif self.selected_model is None:
-            # print('bypassing model for transforming:')
-            # print(X[:10])
             return X
         else:
-            # print('using model for transforming: ', self.selected_model.__class__.__name__)
             return self.selected_model.transform(X)
 
     def predict(self, x):
@@ -94,3 +89,20 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         if self.selected_model is None:
             raise Exception('no model was set')
         return self.selected_model.predict(x)
+
+    
+
+    def __getattr__(self, name):
+        if hasattr(super, name):
+            print("forwarding %s" % name)
+            return getattr(super, name)
+        if hasattr(self.selected_model, name):
+            method = getattr(self.selected_model, name, None)
+            if callable(method):
+                return method
+        else:
+            raise Exception('The method "%s" is not implemented by your model' % name)
+
+
+
+
