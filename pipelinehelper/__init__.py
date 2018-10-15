@@ -90,19 +90,13 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             raise Exception('no model was set')
         return self.selected_model.predict(x)
 
-    
 
-    def __getattr__(self, name):
-        if hasattr(super, name):
-            print("forwarding %s" % name)
-            return getattr(super, name)
-        if hasattr(self.selected_model, name):
-            method = getattr(self.selected_model, name, None)
+    def predict_proba(self, x):
+        if hasattr(self.selected_model, "predict_proba"):
+            method = getattr(self.selected_model, "predict_proba", None)
             if callable(method):
-                return method
+                return method(x)
         else:
-            raise Exception('The method "%s" is not implemented by your model' % name)
-
-
+            raise Exception("Your model does not support predict_proba")
 
 
