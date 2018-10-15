@@ -75,4 +75,3 @@ grid = GridSearchCV(pipe, params, scoring='accuracy')
 ### Open issues:
 
  - Nesting PipelineHelpers themselves does not work yet. I'm not sure how useful this would be.
- - forwarding statistical results like `predict_proba` is not implemented yet. 
