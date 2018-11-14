@@ -100,3 +100,9 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             raise Exception("Your model does not support predict_proba")
 
 
+    def decision_function(self, x):
+        if hasattr(self.selected_model, 'decision_function'):
+            method = getattr(self.selected_model, 'decision_function')
+            if callable(method):
+                return method(x)
+
