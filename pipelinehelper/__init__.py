@@ -1,6 +1,8 @@
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
 from collections import defaultdict
 import itertools
+import logging
+logging.basicConfig(level='INFO', format='%(asctime)s %(levelname)s: %(message)s')
 
 
 class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
@@ -26,8 +28,9 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             model_name = k.split('__')[0]
             param_name = k[len(model_name)+2:]  # might be nested
             if model_name not in self.available_models:
-                raise Exception('no such model: {0}'.format(model_name))
-            per_model_parameters[model_name][param_name] = values
+                logging.warning(f'you are assigning parameters to a non-existing model {model_name}')
+            else:
+                per_model_parameters[model_name][param_name] = values
 
         ret = []
             
@@ -90,19 +93,11 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             raise Exception('no model was set')
         return self.selected_model.predict(x)
 
-
-    def predict_proba(self, x):
-        if hasattr(self.selected_model, "predict_proba"):
-            method = getattr(self.selected_model, "predict_proba", None)
-            if callable(method):
-                return method(x)
-        else:
-            raise Exception("Your model does not support predict_proba")
-
-
-    def decision_function(self, x):
-        if hasattr(self.selected_model, 'decision_function'):
-            method = getattr(self.selected_model, 'decision_function')
-            if callable(method):
-                return method(x)
+    def __getattr__(self, name):
+        if hasattr(self.selected_model, name):
+            return self.selected_model.__getattribute__(name)
+        else: 
+            raise AttributeError(f'the selected model {self.selected_model} '
+            f'does not support {name}.')
+            
 
