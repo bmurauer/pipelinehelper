@@ -1,18 +1,18 @@
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.3.0
-  hooks:
-    - id: check-ast
-    - id: check-yaml
-    - id: check-toml
-    - id: pretty-format-json
-      args: [--autofix]
-    - id: end-of-file-fixer
-    - id: trailing-whitespace
-    - id: fix-encoding-pragma
-      args: [--remove]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-ast
+      - id: check-yaml
+      - id: check-toml
+      - id: pretty-format-json
+        args: [--autofix]
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: fix-encoding-pragma
+        args: [--remove]
 
-- repo: https://github.com/psf/black
-  rev: master
-  hooks:
-    - id: black
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: ''  # pick a git hash / tag to point to
+    hooks:
+      - id: flake8

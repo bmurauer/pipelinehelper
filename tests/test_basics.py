@@ -1,8 +1,8 @@
-from sklearn.pipeline import Pipeline
-from sklearn.svm import LinearSVC
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler
+from sklearn.svm import LinearSVC
 
 from pipelinehelper import PipelineHelper
 
@@ -13,10 +13,11 @@ def test_base_case():
             (
                 "t",
                 PipelineHelper(
-                    [("cv", CountVectorizer()), ("tfidf", TfidfVectorizer()),]
+                    [("cv", CountVectorizer()), ("tfidf", TfidfVectorizer()), ]
                 ),
             ),
-            ("c", PipelineHelper([("svm", LinearSVC()), ("nb", MultinomialNB())])),
+            ("c",
+             PipelineHelper([("svm", LinearSVC()), ("nb", MultinomialNB())])),
         ]
     )
 
@@ -58,7 +59,7 @@ def test_optional():
             (
                 "scaler",
                 PipelineHelper(
-                    [("minmax", MinMaxScaler()), ("maxabs", MaxAbsScaler()),],
+                    [("minmax", MinMaxScaler()), ("maxabs", MaxAbsScaler()), ],
                     optional=True,
                 ),
             ),

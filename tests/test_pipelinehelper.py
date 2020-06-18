@@ -1,19 +1,14 @@
 import unittest
 
-from pipelinehelper import PipelineHelper
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import StandardScaler, MaxAbsScaler, MinMaxScaler
-from sklearn.svm import SVC, LinearSVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn import datasets
-from sklearn import metrics
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.linear_model import RidgeClassifier, SGDClassifier
 import numpy as np
+from sklearn import metrics
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import RidgeClassifier, SGDClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import Pipeline
+
+from pipelinehelper import PipelineHelper
 
 
 class PipelineHelperTest(unittest.TestCase):
@@ -34,9 +29,9 @@ requires_decision_function = ["average_precision", "roc_auc"]
 
 
 def get_data():
-    X = np.random.rand(10, 10)
+    x = np.random.rand(10, 10)
     y = [0] * 5 + [1] * 5
-    return X, y
+    return x, y
 
 
 def get_classifiers_for_function(scorer):
@@ -53,9 +48,9 @@ def get_classifiers_for_function(scorer):
 
 def create_binary_test(scorer):
     def do_test(self):
-        X, y = get_data()
+        x, y = get_data()
         pipe = Pipeline(
-            [("clf", PipelineHelper(get_classifiers_for_function(scorer))),]
+            [("clf", PipelineHelper(get_classifiers_for_function(scorer)))]
         )
         params = {"clf__selected_model": pipe.named_steps["clf"].generate()}
         grid = GridSearchCV(
@@ -67,7 +62,7 @@ def create_binary_test(scorer):
             n_jobs=-1,
             error_score="raise",
         )
-        grid.fit(X, y)
+        grid.fit(x, y)
 
     return do_test
 

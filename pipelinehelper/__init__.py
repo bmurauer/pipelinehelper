@@ -1,7 +1,6 @@
 """Selects elements from a scikit pipeline with a working parametergrid."""
 
 from collections import defaultdict
-import warnings
 
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
@@ -18,11 +17,11 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
     """
 
     def __init__(
-        self,
-        available_models=None,
-        selected_model=None,
-        include_bypass=False,
-        optional=False,
+            self,
+            available_models=None,
+            selected_model=None,
+            include_bypass=False,
+            optional=False,
     ):
         """
         Selects elements from a list to use as estimators in a pipeline.
@@ -69,7 +68,7 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         for k, values in param_dict.items():
             # example:  randomforest__n_estimators
             model_name = k.split("__")[0]
-            param_name = k[len(model_name) + 2 :]
+            param_name = k[len(model_name) + 2:]
             if model_name not in self.available_models:
                 raise Exception("no such model: {0}".format(model_name))
             per_model_parameters[model_name][param_name] = values
@@ -114,7 +113,10 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         """
         return self.available_models
 
-    def set_params(self, selected_model, available_models=None, optional=False):
+    def set_params(self,
+                   selected_model,
+                   available_models=None,
+                   optional=False):
         """
         Sets the parameters to all available models.
 
@@ -164,7 +166,8 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
                 return method(x)
         else:
             raise ValueError(
-                "Your model (%s) does not support predict_proba" % self.selected_model
+                "Your model (%s) does not support predict_proba"
+                % self.selected_model
             )
 
     def decision_function(self, x):
