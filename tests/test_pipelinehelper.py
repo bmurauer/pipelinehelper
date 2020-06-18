@@ -13,6 +13,7 @@ from sklearn import metrics
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.linear_model import RidgeClassifier, SGDClassifier
+import numpy as np
 
 
 class PipelineHelperTest(unittest.TestCase):
@@ -32,6 +33,12 @@ ignored_metrics = [
 requires_decision_function = ["average_precision", "roc_auc"]
 
 
+def get_data():
+    X = np.random.rand(10, 10)
+    y = [0] * 5 + [1] * 5
+    return X, y
+
+
 def get_classifiers_for_function(scorer):
     if scorer in requires_decision_function:
         return [
@@ -46,7 +53,7 @@ def get_classifiers_for_function(scorer):
 
 def create_binary_test(scorer):
     def do_test(self):
-        X, y = datasets.load_breast_cancer(return_X_y=True)
+        X, y = get_data()
         pipe = Pipeline(
             [("clf", PipelineHelper(get_classifiers_for_function(scorer))),]
         )
@@ -56,7 +63,7 @@ def create_binary_test(scorer):
             params,
             scoring=scorer,
             verbose=0,
-            cv=3,
+            cv=2,
             n_jobs=-1,
             error_score="raise",
         )
@@ -69,6 +76,6 @@ for scorer in metrics.SCORERS.keys():
     if scorer in ignored_metrics:
         continue
     # if scorer != 'average_precision':
-    test_method = create_binary_test(scorer)
-    test_method.__name__ = f"test_{scorer}"
-    setattr(PipelineHelperTest, test_method.__name__, test_method)
+    method = create_binary_test(scorer)
+    method.__name__ = f"test_{scorer}"
+    setattr(PipelineHelperTest, method.__name__, method)
