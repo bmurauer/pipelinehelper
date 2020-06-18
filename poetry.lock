@@ -64,25 +64,6 @@ webencodings = "*"
 
 [[package]]
 category = "dev"
-description = "Version-bump your software with a single command!"
-name = "bump2version"
-optional = false
-python-versions = ">=3.5"
-version = "1.0.0"
-
-[[package]]
-category = "dev"
-description = "Version-bump your software with a single command!"
-name = "bumpversion"
-optional = false
-python-versions = "*"
-version = "0.6.0"
-
-[package.dependencies]
-bump2version = "*"
-
-[[package]]
-category = "dev"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
@@ -684,7 +665,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "dd754274e2cb72a74f0fe04fed8b82c547a988b804168e5f6f53aa69ade0684d"
+content-hash = "5dfeadab07418ada95c698e88375713ec36fc9a2f3f649024e7a1343328ac801"
 python-versions = ">=3.6.1"
 
 [metadata.files]
@@ -707,14 +688,6 @@ black = [
 bleach = [
     {file = "bleach-3.1.5-py2.py3-none-any.whl", hash = "sha256:2bce3d8fab545a6528c8fa5d9f9ae8ebc85a56da365c7f85180bfe96a35ef22f"},
     {file = "bleach-3.1.5.tar.gz", hash = "sha256:3c4c520fdb9db59ef139915a5db79f8b51bc2a7257ea0389f30c846883430a4b"},
-]
-bump2version = [
-    {file = "bump2version-1.0.0-py2.py3-none-any.whl", hash = "sha256:477f0e18a0d58e50bb3dbc9af7fcda464fd0ebfc7a6151d8888602d7153171a0"},
-    {file = "bump2version-1.0.0.tar.gz", hash = "sha256:cd4f3a231305e405ed8944d8ff35bd742d9bc740ad62f483bd0ca21ce7131984"},
-]
-bumpversion = [
-    {file = "bumpversion-0.6.0-py2.py3-none-any.whl", hash = "sha256:4eb3267a38194d09f048a2179980bb4803701969bff2c85fa8f6d1ce050be15e"},
-    {file = "bumpversion-0.6.0.tar.gz", hash = "sha256:4ba55e4080d373f80177b4dabef146c07ce73c7d1377aabf9d3c3ae1f94584a6"},
 ]
 certifi = [
     {file = "certifi-2020.4.5.2-py2.py3-none-any.whl", hash = "sha256:9cd41137dc19af6a5e03b630eefe7d1f458d964d406342dd3edf625839b944cc"},
