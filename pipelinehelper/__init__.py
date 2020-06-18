@@ -1,103 +1,180 @@
-from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
+"""Selects elements from a scikit pipeline with a working parametergrid."""
+
 from collections import defaultdict
-import itertools
-import logging
-logging.basicConfig(level='INFO', format='%(asctime)s %(levelname)s: %(message)s')
+import warnings
+
+from sklearn.base import BaseEstimator
+from sklearn.base import ClassifierMixin
+from sklearn.base import TransformerMixin
+from sklearn.model_selection import ParameterGrid
 
 
 class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
+    """
+    This class can be used in scikit pipelines to select elements.
 
-    def __init__(self, available_models=None, selected_model=None, include_bypass=False):
-        self.include_bypass = include_bypass
+    In addition to the "replace_estimator" functionality of scikit itself,
+    this class allows to set specified parameters for each option in the list.
+    """
+
+    def __init__(
+        self,
+        available_models=None,
+        selected_model=None,
+        include_bypass=False,
+        optional=False,
+    ):
+        """
+        Selects elements from a list to use as estimators in a pipeline.
+
+        Args:
+            available_models: a list of models which should be selected from.
+                If you have time on your hands, please enable the use of
+                pipelines here.
+            selected_model: this parameter is required for the clone operation
+                used by gridsearch. It should only be used initially if no grid
+                search is used.
+            optional: if set to true, one of the resulting configurations will
+                have this stage empty.
+        """
+        self.optional = optional
+        # this is required for the clone operator used in gridsearch
         self.selected_model = selected_model
-        # this is required for the clone operator used in gridsearch 
+
+        # cloned
         if type(available_models) == dict:
             self.available_models = available_models
-        # this is the case for constructing the helper initially
         else:
-            # a string identifier is required for assigning parameters
+            # manually initialized
             self.available_models = {}
             for (key, model) in available_models:
                 self.available_models[key] = model
+        # TODO: pipeline objects instead
 
-    def generate(self, param_dict={}):
+    def generate(self, param_dict=None):
+        """
+        Generates the parameters that are required for a gridsearch.
+
+        Args:
+            param_dict: parameters for the available models provided in the
+                constructor. Note that these don't require the prefix path of
+                all elements higher up the hierarchy of this TransformerPicker.
+
+        """
+        if param_dict is None:
+            param_dict = dict()
         per_model_parameters = defaultdict(lambda: defaultdict(list))
-        
+
         # collect parameters for each specified model
         for k, values in param_dict.items():
-            model_name = k.split('__')[0]
-            param_name = k[len(model_name)+2:]  # might be nested
+            # example:  randomforest__n_estimators
+            model_name = k.split("__")[0]
+            param_name = k[len(model_name) + 2 :]
             if model_name not in self.available_models:
-                logging.warning(f'you are assigning parameters to a non-existing model {model_name}')
-            else:
-                per_model_parameters[model_name][param_name] = values
+                raise Exception("no such model: {0}".format(model_name))
+            per_model_parameters[model_name][param_name] = values
 
         ret = []
-            
-        # create instance for cartesion product of all available parameters for each model
+
+        # create instance for cartesion product of all available parameters
+        # for each model
         for model_name, param_dict in per_model_parameters.items():
-            parameter_sets = (dict(zip(param_dict, x)) for x in itertools.product(*param_dict.values()))
+            parameter_sets = ParameterGrid(param_dict)
             for parameters in parameter_sets:
                 ret.append((model_name, parameters))
 
-        # for every model that has no specified parameters, add the default model
+        # for every model that has no specified parameters, add default value
         for model_name in self.available_models.keys():
             if model_name not in per_model_parameters:
                 ret.append((model_name, dict()))
 
-        # check if the stage is to be bypassed as one configuration
-        if self.include_bypass:
-            ret.append((None, dict(), True))
+        if self.optional:
+            ret.append((None, dict()))
         return ret
-               
-    def get_params(self, deep=False):
-        return {'available_models': self.available_models,
-                'selected_model': self.selected_model,
-                'include_bypass': self.include_bypass}
 
-    def set_params(self, selected_model, available_models=None, include_bypass=False):
-        include_bypass = len(selected_model) == 3 and selected_model[2]
-                    
+    def get_params(self, **kwargs):
+        """
+        Returns the parameters of the current TransformerPicker instance.
+
+        Note that this is different from the parameters used by the selected
+        model. Provided for scikit estimator compatibility.
+        """
+        return {
+            "available_models": self.available_models,
+            "selected_model": self.selected_model,
+            "optional": self.optional,
+        }
+
+    @property
+    def transformer_list(self):
+        """
+        Returns a list of all available models.
+
+        Provided for scikit estimator compatibility.
+        """
+        return self.available_models
+
+    def set_params(self, selected_model, available_models=None, optional=False):
+        """
+        Sets the parameters to all available models.
+
+        Provided for scikit estimator compatibility.
+        """
         if available_models:
             self.available_models = available_models
 
-        if selected_model[0] is None and include_bypass:
+        if selected_model[0] is None:
             self.selected_model = None
-            self.include_bypass = True
         else:
             if selected_model[0] not in self.available_models:
-                raise Exception('so such model available: {0}'.format(selected_model[0]))
+                raise ValueError(
+                    "trying to set selected model {selected_model[0]}, which "
+                    f"is not in the available models {available_models}."
+                )
             self.selected_model = self.available_models[selected_model[0]]
-            self.selected_model.set_params(**selected_model[1])
+            if self.selected_model is not None:
+                self.selected_model.set_params(**selected_model[1])
+        return self
 
-    def fit(self, X, y=None):
-        if self.selected_model is None and not self.include_bypass:
-            raise Exception('no model was set')
-        elif self.selected_model is None:
+    def fit(self, x, y=None, **kwargs):
+        """Fits the selected model."""
+        if self.selected_model is None or self.selected_model == "passthrough":
             return self
         else:
-            return self.selected_model.fit(X, y)
+            return self.selected_model.fit(x, y, **kwargs)
 
-    def transform(self, X, y=None):
-        if self.selected_model is None and not self.include_bypass:
-            raise Exception('no model was set')
-        elif self.selected_model is None:
-            return X
+    def transform(self, x, *args, **kwargs):
+        """Transforms data with the selected model."""
+        if self.selected_model is None or self.selected_model == "passthrough":
+            return x
         else:
-            return self.selected_model.transform(X)
+            return self.selected_model.transform(x, *args, **kwargs)
 
     def predict(self, x):
-        if self.include_bypass:
-            raise Exception('bypassing classifier is not allowed')
-        if self.selected_model is None:
-            raise Exception('no model was set')
+        """Predicts data with the selected model."""
+        if self.optional:
+            raise ValueError("a classifier can not be optional")
         return self.selected_model.predict(x)
 
-    def __getattr__(self, name):
-        if hasattr(self.selected_model, name):
-            return self.selected_model.__getattribute__(name)
-        else: 
-            raise AttributeError(f'the selected model {self.selected_model} '
-            f'does not support {name}.')
-            
+    def predict_proba(self, x):
+        """Predicts data with the selected model."""
+        if hasattr(self.selected_model, "predict_proba"):
+            method = getattr(self.selected_model, "predict_proba", None)
+            if callable(method):
+                return method(x)
+        else:
+            raise ValueError(
+                "Your model (%s) does not support predict_proba" % self.selected_model
+            )
 
+    def decision_function(self, x):
+        """Calculates the decision function with the selected model."""
+        if hasattr(self.selected_model, "decision_function"):
+            method = getattr(self.selected_model, "decision_function", None)
+            if callable(method):
+                return method(x)
+        else:
+            raise ValueError(
+                "Your model (%s) does not support decision_function"
+                % self.selected_model
+            )
