@@ -72,6 +72,16 @@ params = {
 grid = GridSearchCV(pipe, params, scoring='accuracy')
 ```
 
+## Installation
+
+The project is now on PyPI, so it can be installed using:
+
+    pip install pipelinehelper
+
+Then import it:
+
+    from pipelinehelper import PipelineHelper
+
 ### Open issues:
 
  - Nesting PipelineHelpers themselves does not work yet. I'm not sure how useful this would be.
