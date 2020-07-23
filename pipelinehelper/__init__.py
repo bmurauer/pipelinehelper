@@ -48,7 +48,6 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             self.available_models = {}
             for (key, model) in available_models:
                 self.available_models[key] = model
-        # TODO: pipeline objects instead
 
     def generate(self, param_dict=None):
         """
@@ -67,10 +66,10 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         # collect parameters for each specified model
         for k, values in param_dict.items():
             # example:  randomforest__n_estimators
-            model_name = k.split("__")[0]
+            model_name = k.split('__')[0]
             param_name = k[len(model_name) + 2:]
             if model_name not in self.available_models:
-                raise Exception("no such model: {0}".format(model_name))
+                raise Exception('no such model: {0}'.format(model_name))
             per_model_parameters[model_name][param_name] = values
 
         ret = []
@@ -99,9 +98,9 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         model. Provided for scikit estimator compatibility.
         """
         return {
-            "available_models": self.available_models,
-            "selected_model": self.selected_model,
-            "optional": self.optional,
+            'available_models': self.available_models,
+            'selected_model': self.selected_model,
+            'optional': self.optional,
         }
 
     @property
@@ -130,8 +129,8 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         else:
             if selected_model[0] not in self.available_models:
                 raise ValueError(
-                    "trying to set selected model {selected_model[0]}, which "
-                    f"is not in the available models {available_models}."
+                    'trying to set selected model {selected_model[0]}, which '
+                    f'is not in the available models {available_models}.'
                 )
             self.selected_model = self.available_models[selected_model[0]]
             if self.selected_model is not None:
@@ -140,14 +139,14 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
 
     def fit(self, x, y=None, **kwargs):
         """Fits the selected model."""
-        if self.selected_model is None or self.selected_model == "passthrough":
+        if self.selected_model is None or self.selected_model == 'passthrough':
             return self
         else:
             return self.selected_model.fit(x, y, **kwargs)
 
     def transform(self, x, *args, **kwargs):
         """Transforms data with the selected model."""
-        if self.selected_model is None or self.selected_model == "passthrough":
+        if self.selected_model is None or self.selected_model == 'passthrough':
             return x
         else:
             return self.selected_model.transform(x, *args, **kwargs)
@@ -155,29 +154,29 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
     def predict(self, x):
         """Predicts data with the selected model."""
         if self.optional:
-            raise ValueError("a classifier can not be optional")
+            raise ValueError('a classifier can not be optional')
         return self.selected_model.predict(x)
 
     def predict_proba(self, x):
         """Predicts data with the selected model."""
-        if hasattr(self.selected_model, "predict_proba"):
-            method = getattr(self.selected_model, "predict_proba", None)
+        if hasattr(self.selected_model, 'predict_proba'):
+            method = getattr(self.selected_model, 'predict_proba', None)
             if callable(method):
                 return method(x)
         else:
             raise ValueError(
-                "Your model (%s) does not support predict_proba"
+                'Your model (%s) does not support predict_proba'
                 % self.selected_model
             )
 
     def decision_function(self, x):
         """Calculates the decision function with the selected model."""
-        if hasattr(self.selected_model, "decision_function"):
-            method = getattr(self.selected_model, "decision_function", None)
+        if hasattr(self.selected_model, 'decision_function'):
+            method = getattr(self.selected_model, 'decision_function', None)
             if callable(method):
                 return method(x)
         else:
             raise ValueError(
-                "Your model (%s) does not support decision_function"
+                'Your model (%s) does not support decision_function'
                 % self.selected_model
             )

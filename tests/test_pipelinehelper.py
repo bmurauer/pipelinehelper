@@ -17,15 +17,15 @@ class PipelineHelperTest(unittest.TestCase):
 
 ignored_metrics = [
     # these are multilabel metrics, but gridsearch does not support multilabel
-    "recall_samples",
-    "precision_samples",
-    "f1_samples",
-    "jaccard_samples",
+    'recall_samples',
+    'precision_samples',
+    'f1_samples',
+    'jaccard_samples',
     # require strictly positive y-values (?)
-    "neg_mean_poisson_deviance",
-    "neg_mean_gamma_deviance",
+    'neg_mean_poisson_deviance',
+    'neg_mean_gamma_deviance',
 ]
-requires_decision_function = ["average_precision", "roc_auc"]
+requires_decision_function = ['average_precision', 'roc_auc']
 
 
 def get_data():
@@ -37,12 +37,12 @@ def get_data():
 def get_classifiers_for_function(scorer):
     if scorer in requires_decision_function:
         return [
-            ("sgd", SGDClassifier()),
-            ("ridge", RidgeClassifier()),
+            ('sgd', SGDClassifier()),
+            ('ridge', RidgeClassifier()),
         ]
     return [
-        ("knn", KNeighborsClassifier()),
-        ("rf", RandomForestClassifier()),
+        ('knn', KNeighborsClassifier()),
+        ('rf', RandomForestClassifier()),
     ]
 
 
@@ -50,9 +50,9 @@ def create_binary_test(scorer):
     def do_test(self):
         x, y = get_data()
         pipe = Pipeline(
-            [("clf", PipelineHelper(get_classifiers_for_function(scorer)))]
+            [('clf', PipelineHelper(get_classifiers_for_function(scorer)))]
         )
-        params = {"clf__selected_model": pipe.named_steps["clf"].generate()}
+        params = {'clf__selected_model': pipe.named_steps['clf'].generate()}
         grid = GridSearchCV(
             pipe,
             params,
@@ -60,7 +60,7 @@ def create_binary_test(scorer):
             verbose=0,
             cv=2,
             n_jobs=-1,
-            error_score="raise",
+            error_score='raise',
         )
         grid.fit(x, y)
 
@@ -72,5 +72,5 @@ for scorer in metrics.SCORERS.keys():
         continue
     # if scorer != 'average_precision':
     method = create_binary_test(scorer)
-    method.__name__ = f"test_{scorer}"
+    method.__name__ = f'test_{scorer}'
     setattr(PipelineHelperTest, method.__name__, method)
