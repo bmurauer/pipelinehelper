@@ -6,6 +6,7 @@ from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import TransformerMixin
 from sklearn.model_selection import ParameterGrid
+from sklearn.utils.metaestimators import if_delegate_has_method
 
 
 class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
@@ -157,26 +158,10 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             raise ValueError('a classifier can not be optional')
         return self.selected_model.predict(x)
 
+    @if_delegate_has_method(delegate='selected_model')
     def predict_proba(self, x):
-        """Predicts data with the selected model."""
-        if hasattr(self.selected_model, 'predict_proba'):
-            method = getattr(self.selected_model, 'predict_proba', None)
-            if callable(method):
-                return method(x)
-        else:
-            raise ValueError(
-                'Your model (%s) does not support predict_proba'
-                % self.selected_model
-            )
+        return self.selected_model.predict_proba(x)
 
+    @if_delegate_has_method(delegate='selected_model')
     def decision_function(self, x):
-        """Calculates the decision function with the selected model."""
-        if hasattr(self.selected_model, 'decision_function'):
-            method = getattr(self.selected_model, 'decision_function', None)
-            if callable(method):
-                return method(x)
-        else:
-            raise ValueError(
-                'Your model (%s) does not support decision_function'
-                % self.selected_model
-            )
+        return self.selected_model.decision_function(x)
