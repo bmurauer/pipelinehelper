@@ -75,8 +75,7 @@ grid = GridSearchCV(pipe, params, scoring='accuracy')
 ```
 
 ## When do I need this?
-The scikit search algorithms already support swapping estimators by specifying
-them in the parameter grid, like in this example demonstrating [dimensionality reduction](https://scikit-learn.org/stable/auto_examples/compose/plot_compare_reduction.html).
+The scikit search algorithms already support swapping transformers by specifying them in the parameter grid, like in this example demonstrating [dimensionality reduction](https://scikit-learn.org/stable/auto_examples/compose/plot_compare_reduction.html).
 
 However, this has some limitations:
  - it is limited to transformers, so the last part of a pipeline (e.g., a classifier) can't be switched in this manner (at least I wasn't able to, please correct me if I'm wrong)
