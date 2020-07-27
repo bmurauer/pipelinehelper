@@ -24,10 +24,13 @@ jobs:
 
     # Runs a set of commands using the runners shell
     - name: install poetry
-      run: |
-        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-        source $GITHUB_WORKSPACE/.poetry/env
-        poetry config virtualenvs.create false
-        poetry install
-        poetry run pytest tests
+      run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+    - name: source poetry
+      run: source $HOME/.poetry/env
+    - name: prevent venv creation
+      run: $HOME/.poetry/bin/poetry config virtualenvs.create false
+    - name: install deps
+      run: $HOME/.poetry/bin/poetry install
+    - name: test
+      run: $HOME/.poetry/bin/poetry run pytest tests
   
