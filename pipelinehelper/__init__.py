@@ -106,8 +106,15 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
         if deep and self.selected_model:
             result.update({
                 'selected_model__' + k: v
-                for k, v in self.selected_model.get_params(True).items()
+                for k, v in self.selected_model.get_params(deep=True).items()
             })
+        if deep and self.available_models:
+            for name, model in self.available_models.items():
+                result['available_models__' + name] = model
+                result.update({
+                    'available_models__' + name + '__' + k: v
+                    for k, v in model.get_params(deep=True).items()
+                })
         return result
 
     @property
