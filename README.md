@@ -1,5 +1,6 @@
 # Pipeline helper class for scikit #
-With this class, elements of a scikit pipeline can be hot-swapped for grid search, along with their parameters. Note that this helper is __specifically designed for the use with GridSearch__ and may behave unexpectedly otherwise.
+With this class, elements of a scikit pipeline can be hot-swapped for grid search, along with their parameters. 
+This helper is __specifically designed for the use with GridSearch__, but also has been shown to work with RandomizedSearchCV (although not tested as thoroughly).
 
 This class provides the following features:
 
