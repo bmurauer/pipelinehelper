@@ -91,18 +91,24 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
             ret.append((None, dict()))
         return ret
 
-    def get_params(self, **kwargs):
+    def get_params(self, deep=True):
         """
         Returns the parameters of the current TransformerPicker instance.
 
         Note that this is different from the parameters used by the selected
         model. Provided for scikit estimator compatibility.
         """
-        return {
+        result = {
             'available_models': self.available_models,
             'selected_model': self.selected_model,
             'optional': self.optional,
         }
+        if deep and self.selected_model:
+            result.update({
+                'selected_model__' + k: v
+                for k, v in self.selected_model.get_params(True).items()
+            })
+        return result
 
     @property
     def transformer_list(self):
