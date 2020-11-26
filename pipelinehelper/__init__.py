@@ -178,3 +178,9 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
     @if_delegate_has_method(delegate='selected_model')
     def decision_function(self, x):
         return self.selected_model.decision_function(x)
+
+    @property
+    def classes_(self):
+        if hasattr(self.selected_model, 'classes_'):
+            return self.selected_model.classes_
+        raise ValueError('selected model does not provide classes_')
