@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipelinehelper"
-version = "0.7.7"
+version = "0.7.8"
 description = "Swaps scikit pipeline elements but also supports grid parameter configurations."
 authors = ["Benjamin Murauer <b.murauer@posteo.de>"]
 license = "GPL-3.0+"
