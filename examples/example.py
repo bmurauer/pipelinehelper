@@ -19,7 +19,7 @@ pipe = Pipeline([
     ('scaler', PipelineHelper([
         ('std', StandardScaler()),
         ('max', MaxAbsScaler()),
-    ], opional=True)),
+    ], optional=True)),
 
     ('classifier', PipelineHelper([
         ('svm', SVC()),
