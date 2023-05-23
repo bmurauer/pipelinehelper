@@ -179,6 +179,10 @@ class PipelineHelper(BaseEstimator, TransformerMixin, ClassifierMixin):
     def decision_function(self, x):
         return self.selected_model.decision_function(x)
 
+    @if_delegate_has_method(delegate='selected_model')
+    def get_support(self):
+        return self.selected_model.get_support()
+
     @property
     def classes_(self):
         if hasattr(self.selected_model, 'classes_'):

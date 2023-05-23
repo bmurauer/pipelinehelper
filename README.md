@@ -1,3 +1,26 @@
+# ARCHIVING
+
+This helper class is no longer maintained, but it is also no longer required, and I don't recommend using it.
+
+The parameters of the grid/random search can be fully specified using a list of parameter grid dictionaries:
+
+```python
+pl = Pipeline([
+    ('est', LinearSVC())
+])
+param_grid=[
+    {'est': [RandomForestClassifier()],'est__n_estimators':[5,10,25]},
+    {'est': [DecisionTreeClassifier()] },
+    
+]
+a = GridSearchCV(pl,param_grid)
+```
+This way, every feature of this helper class can be modelled.
+The only benefit that this helper class would provide is to somewhat change the syntax, which may or may not be more clear to the user.
+
+
+---
+
 # Pipeline helper class for scikit #
 With this class, elements of a scikit pipeline can be hot-swapped for grid search, along with their parameters. 
 This helper is __specifically designed for the use with GridSearch__, but also has been shown to work with RandomizedSearchCV (although not tested as thoroughly).
@@ -78,10 +101,9 @@ grid = GridSearchCV(pipe, params, scoring='accuracy')
 The scikit search algorithms already support swapping transformers by specifying them in the parameter grid, like in this example demonstrating [dimensionality reduction](https://scikit-learn.org/stable/auto_examples/compose/plot_compare_reduction.html).
 
 However, this has some limitations:
- - it is limited to transformers, so the last part of a pipeline (e.g., a classifier) can't be switched in this manner (at least I wasn't able to, please correct me if I'm wrong)
- 
- - If you want to try different parameters for each of the options, you have to specify them separately, which is what we try to avoid in the first place
- 
+ - I find it confusing that the definition of pipeline steps 
+
+
 If you run in one of those two limitations, this tool is right for you! 
 
 ## Installation
