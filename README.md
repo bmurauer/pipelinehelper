@@ -97,14 +97,6 @@ params = {
 grid = GridSearchCV(pipe, params, scoring='accuracy')
 ```
 
-## When do I need this?
-The scikit search algorithms already support swapping transformers by specifying them in the parameter grid, like in this example demonstrating [dimensionality reduction](https://scikit-learn.org/stable/auto_examples/compose/plot_compare_reduction.html).
-
-However, this has some limitations:
- - I find it confusing that the definition of pipeline steps 
-
-
-If you run in one of those two limitations, this tool is right for you! 
 
 ## Installation
 
