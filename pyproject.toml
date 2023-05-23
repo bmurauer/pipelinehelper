@@ -6,11 +6,11 @@ authors = ["Benjamin Murauer <b.murauer@posteo.de>"]
 license = "GPL-3.0+"
 
 [tool.poetry.dependencies]
-python = "^3.6.1"
+python = ">=3.8"
 scikit-learn = "*"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.4.3"
+pytest = "^6.2.5"
 pre-commit = "^2.5.1"
 twine = "^3.1.1"
 isort = "^4.3.21"
